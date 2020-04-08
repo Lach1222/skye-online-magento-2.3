@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <!-- <Skye_cancelSkyePendingOrders>
+                <schedule>
+                    <cron_expr>*/2 * * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>skyepayments/observer::cancelSkyePendingOrders</model>
+                </run>
+            </Skye_cancelSkyePendingOrders> -->
+    </group>
+</config>

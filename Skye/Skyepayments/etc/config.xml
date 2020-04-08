@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <skyepayments>
+                <active>0</active>
+                <model>skyepayments/paymentmethod</model>
+                <skye_approved_order_status>skye_processed</skye_approved_order_status>
+                <title>Skye Mastercard®</title>
+                <allowspecific>0</allowspecific>
+                <payment_action>sale</payment_action>
+                <skyeonline_url/>
+                <skyesoap_url/>
+                <specificcountry>AU,NZ</specificcountry>
+                <merchant_number/>
+                <operator_id/>
+                <operator_password/>
+                <default_product_offer/>
+                <default_product_description/>
+                <credit_product>MyBuy_Online</credit_product>
+                <api_key/>
+                <automatic_invoice>0</automatic_invoice>
+                <!-- 0:No -->
+                <email_customer>1</email_customer>
+            </skyepayments>
+        </payment>
+        <skye>
+            <cron>
+                <pending_payment_timeout>5400</pending_payment_timeout>
+                <!-- Not used yet -->
+            </cron>
+        </skye>
+    </default>
+</config>

@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <section id="payment">
+        <group id="skyepayments" type="" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0" translate="label" module="skyepayments">
+            <label>Skye Checkout</label>
+            <field id="active" translate="label">
+                <label>Enabled</label>
+                <source_model>adminhtml/system_config_source_yesno</source_model>
+            </field>
+            <field id="merchant_number" translate="label">
+                <label>Merchant Number</label>
+                <validate>required-entry</validate>
+            </field>
+            <field id="operator_id" translate="label">
+                <label>Operator Id</label>
+                <validate>required-entry</validate>
+            </field>
+            <field id="operator_password" translate="label">
+                <label>Operator Password</label>
+                <validate>required-entry</validate>
+            </field>
+            <field id="default_product_only" translate="label">
+                <label>Allow customers Interest free options?</label>
+                <source_model>adminhtml/system_config_source_yesno</source_model>
+                <validate>required-entry</validate>
+            </field>
+            <field id="default_product_offer" translate="label">
+                <label>Default Product Offer</label>
+            </field>
+            <field id="default_product_description" translate="label">
+                <label>Default Product Description</label>
+                <validate>required-entry</validate>
+            </field>
+            <field id="credit_product" translate="label">
+                <label>Credit Product</label>
+                <validate>required-entry</validate>
+            </field>
+            <field id="api_key" translate="label">
+                <label>Secret Key</label>
+                <validate>required-entry</validate>
+            </field>
+            <field id="skyeonline_url" translate="label">
+                <label>Skye Online URL</label>
+                <validate>required-entry</validate>
+            </field>
+            <field id="skyesoap_url" translate="label">
+                <label>Skye SOAP URL</label>
+                <validate>required-entry</validate>
+            </field>
+            <field id="skye_approved_order_status" translate="label">
+                <label>Status for Skye Approved Orders</label>
+                <validate>required-entry</validate>
+                <source_model>adminhtml/system_config_source_order_status_processing</source_model>
+                <tooltip>Select ‘Skye Processed’ if you want to easily locate all Skye transactions in the Orders page.</tooltip>
+            </field>
+            <field id="automatic_invoice" translate="label">
+                <label>Automatic Invoice</label>
+                <source_model>adminhtml/system_config_source_yesno</source_model>
+            </field>
+            <field id="email_customer" translate="label">
+                <label>Email Customer</label>
+                <source_model>adminhtml/system_config_source_yesno</source_model>
+            </field>
+            <field id="min_order_total">
+                <label>Minimum Order Total</label>
+            </field>
+            <field id="max_order_total">
+                <label>Maximum Order Total</label>
+            </field>
+            <field id="specificcountry">
+                <label>Payment from Specific Countries</label>
+                <validate>required-entry</validate>
+                <source_model>adminhtml/system_config_source_country</source_model>
+            </field>
+            <field id="version" translate="label">
+                <label>Version Number</label>
+                <frontend_model>Skye_Skyepayments_Block_Adminhtml_Version</frontend_model>
+            </field>
+        </group>
+    </section>
+</config>
