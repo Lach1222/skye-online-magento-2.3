@@ -1,0 +1,19 @@
+{
+    "name": "Lach1222/skye-online-magento-2.3",
+    "description": "SKYE Mastercard Module for Magento 2",
+    "license": "OSL-3.0",
+    "authors": [
+        {
+            "name": "Lachlan Hutchison",
+            "homepage": "https://carlingfordmusic.com.au"
+        }
+    ],
+    "require": {
+        "php": "^7.1",
+    },
+    "autoload": {
+        "psr-4": {
+            "Skye\\Skyepayments\\": "/Skye/Skyepayments/"
+        }
+    }
+}
