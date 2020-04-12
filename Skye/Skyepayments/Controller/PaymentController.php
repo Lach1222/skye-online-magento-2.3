@@ -1,8 +1,8 @@
 <?php
-namespace ;
+namespace Skye\Skyepayments\Controller\;
 
 
-class  extends \Magento\Framework\App\Action\Action
+class PaymentController extends \Magento\Framework\App\Action\Action
 {
     const LOG_FILE = 'skye.log';
     const SKYE_AU_CURRENCY_CODE = 'AUD';
@@ -109,11 +109,11 @@ class  extends \Magento\Framework\App\Action\Action
                     $order->save();
                     $merchantId = \Skye\Skyepayments\Helper\Data::getMerchantNumber();
                     $this->postToCheckout(\Skye\Skyepayments\Helper\Data::getSkyeOnlineUrl(), $merchantId, $transactionId);
-                } else {            
+                } else {
                     $this->restoreCart($order, 'Skye transaction error.');
-                    $this->_redirect('checkout/cart');                  
-                    $this ->cancelOrder($order);                    
-                    $this->salesResourceModelOrder->delete($order);                                                         
+                    $this->_redirect('checkout/cart');
+                    $this ->cancelOrder($order);
+                    $this->salesResourceModelOrder->delete($order);
                 }
             } catch (Exception $ex) {
                 $this->logger->critical($ex);
@@ -123,7 +123,7 @@ class  extends \Magento\Framework\App\Action\Action
             }
         } else {
             $this->restoreCart($this->getLastRealOrder(), 'Not a valid quote');
-            $this->_redirect('checkout/cart');  
+            $this->_redirect('checkout/cart');
             // cancel order (restore stock) and delete order
             $order = $this->getLastRealOrder();
             $this -> cancelOrder($order);
@@ -141,8 +141,8 @@ class  extends \Magento\Framework\App\Action\Action
         $order =  $this->getOrderById($orderId);
         $transactionId = $this->getRequest()->get('transaction');
 
-        if ($order && $order->getId()) {           
-            $this->logger->log(\Monolog\Logger::DEBUG, 'Requested order cancellation by customer. OrderId: '.$order->getIncrementId());            
+        if ($order && $order->getId()) {
+            $this->logger->log(\Monolog\Logger::DEBUG, 'Requested order cancellation by customer. OrderId: '.$order->getIncrementId());
             $this->cancelOrder($order);
             $this->restoreCart($order, 'Requested order cancellation by customer.');
             $order->save();
@@ -160,8 +160,8 @@ class  extends \Magento\Framework\App\Action\Action
         $order =  $this->getOrderById($orderId);
         $transactionId = $this->getRequest()->get('transaction');
 
-        if ($order && $order->getId()) {           
-            $this->logger->log(\Monolog\Logger::DEBUG, 'Requested order declined. OrderId: '.$order->getIncrementId());            
+        if ($order && $order->getId()) {
+            $this->logger->log(\Monolog\Logger::DEBUG, 'Requested order declined. OrderId: '.$order->getIncrementId());
             $this->declineOrder($order);
             $this->restoreCart($order, 'Requested order declined');
             $order->save();
@@ -172,15 +172,15 @@ class  extends \Magento\Framework\App\Action\Action
     /**
      * GET: skyepayments/payment/refer
      *
-     * 
+     *
      */
     public function referAction() {
         $orderId = $this->getRequest()->get('orderId');
         $order =  $this->getOrderById($orderId);
         $transactionId = $this->getRequest()->get('transaction');
 
-        if ($order && $order->getId()) {           
-            $this->logger->log(\Monolog\Logger::DEBUG, 'Requested order Referred. OrderId: '.$order->getIncrementId());            
+        if ($order && $order->getId()) {
+            $this->logger->log(\Monolog\Logger::DEBUG, 'Requested order Referred. OrderId: '.$order->getIncrementId());
             $this->referOrder($order);
             $this->restoreCart($order, 'Requested order Referred');
             $order->save();
@@ -197,8 +197,8 @@ class  extends \Magento\Framework\App\Action\Action
         $orderId = $this->getRequest()->get("orderId");
         $transactionId = $this->getRequest()->get("transaction");
         $soapUrl  = \Skye\Skyepayments\Helper\Data::getSkyeSoapUrl();
-        $merchantId = \Skye\Skyepayments\Helper\Data::getMerchantNumber();            
-        
+        $merchantId = \Skye\Skyepayments\Helper\Data::getMerchantNumber();
+
         if(!$orderId) {
             $this->logger->log(\Monolog\Logger::ERROR, "Skye returned a null order id. This may indicate an issue with the Skye payment gateway.");
             $this->_redirect('checkout/onepage/error', array('_secure'=> false));
@@ -221,9 +221,9 @@ class  extends \Magento\Framework\App\Action\Action
         $getIplTransaction = array (
                 'TransactionID' => str_replace(PHP_EOL, ' ',$transactionId),
                 'MerchantId' => str_replace(PHP_EOL, ' ',$merchantId)
-            );            
+            );
         $applicationStatus = $this->getIplTransaction($soapUrl, $getIplTransaction);
-        
+
         $resource = $this->resourceConnection;
         $write = $resource->getConnection('core_write');
         $table = $resource->getTableName('sales_flat_order');
@@ -232,7 +232,7 @@ class  extends \Magento\Framework\App\Action\Action
         {
             $commitedTransaction = $this->commitIPLTransaction($soapUrl, $getIplTransaction);
         }else{
-            $commitedTransaction = false;   
+            $commitedTransaction = false;
         };
 
         try {
@@ -304,12 +304,12 @@ class  extends \Magento\Framework\App\Action\Action
                 ->cancel()
                 ->setStatus(\Skye\Skyepayments\Helper\OrderStatus::STATUS_DECLINED)
                 ->addStatusHistoryComment($this->__("Order #".($order->getId())." was canceled by customer."));
-            
+
             $order->save();
             $this->restoreCart($order, 'Not committed transaction.');
         }
         $this->checkoutSession->unsQuoteId();
-        
+
         if($commitedTransaction){
             $this->_redirect('checkout/onepage/success', array('_secure'=> false));
         }else{
@@ -319,34 +319,34 @@ class  extends \Magento\Framework\App\Action\Action
     }
 
      private function getIplTransaction($checkoutUrl, $params)
-    {     
-        $soapclient = new \SoapClient($checkoutUrl, ['trace' => true, 'exceptions' => true]);   
-        try{                   
+    {
+        $soapclient = new \SoapClient($checkoutUrl, ['trace' => true, 'exceptions' => true]);
+        try{
             $response = $soapclient->__soapCall('GetIPLTransactionStatus',[$params]);
-            $iplTransactionResult = $response->GetIPLTransactionStatusResult;         
-        }catch(Exception $ex){            
+            $iplTransactionResult = $response->GetIPLTransactionStatusResult;
+        }catch(Exception $ex){
            $this->logger->log(\Monolog\Logger::ERROR, "An exception was encountered in getIPLTransaction: ".($e->getMessage()));
-            $this->logger->log(\Monolog\Logger::ERROR, "An exception was encountered in getIPLTransaction: ".($soapclient->__getLastRequest()));    
+            $this->logger->log(\Monolog\Logger::ERROR, "An exception was encountered in getIPLTransaction: ".($soapclient->__getLastRequest()));
         }
-        $this->logger->log(\Monolog\Logger::ALERT, "Finish getIplTransaction!!!"); 
+        $this->logger->log(\Monolog\Logger::ALERT, "Finish getIplTransaction!!!");
         return $iplTransactionResult;
     }
 
     private function commitIPLTransaction($checkoutUrl, $params)
-    {        
+    {
         $commitIplTransactionResult = false;
         $soapclient = new \SoapClient($checkoutUrl, ['trace' => true, 'exceptions' => true]);
-        try{                                   
+        try{
             $response = $soapclient->__soapCall('CommitIPLTransaction',[$params]);
             $commitIplTransactionResult = $response->CommitIPLTransactionResult;
-            $this->logger->log(\Monolog\Logger::ALERT, "Response->".($soapclient->__getLastResponse()));       
-            $this->logger->log(\Monolog\Logger::ALERT, "Request->".($soapclient->__getLastRequest())); 
-            
-        }catch(Exception $ex){            
+            $this->logger->log(\Monolog\Logger::ALERT, "Response->".($soapclient->__getLastResponse()));
+            $this->logger->log(\Monolog\Logger::ALERT, "Request->".($soapclient->__getLastRequest()));
+
+        }catch(Exception $ex){
             $this->logger->log(\Monolog\Logger::ERROR, "An exception was encountered in commitIPLTransaction: ".($e->getMessage()));
-            $this->logger->log(\Monolog\Logger::ERROR, "An exception was encountered in commitIPLTransaction: ".($soapclient->__getLastRequest()));                    
-        }     
-                       
+            $this->logger->log(\Monolog\Logger::ERROR, "An exception was encountered in commitIPLTransaction: ".($soapclient->__getLastRequest()));
+        }
+
         return $commitIplTransactionResult;
     }
 
@@ -426,9 +426,9 @@ class  extends \Magento\Framework\App\Action\Action
 
         $billingAddress = $order->getBillingAddress();
         $billingAddressParts = explode(PHP_EOL, $billingAddress->getData('street'));
-        $billingAddressGroup = $this->formatAddress($billingAddressParts, $billingAddress);       
+        $billingAddressGroup = $this->formatAddress($billingAddressParts, $billingAddress);
 
-        $orderId = (int)$order->getRealOrderId();            
+        $orderId = (int)$order->getRealOrderId();
         $orderTotalAmt = str_replace(PHP_EOL, ' ', $order->getTotalDue());
         if ($order->getPayment()->getAdditionalData() != null)
         {
@@ -436,31 +436,31 @@ class  extends \Magento\Framework\App\Action\Action
         } else {
             $skyeTermCode = \Skye\Skyepayments\Helper\Data::getDefaultProductOffer();
         }
-        $transactionInformation = array(            
-            'MerchantId' => str_replace(PHP_EOL, ' ', \Skye\Skyepayments\Helper\Data::getMerchantNumber()),          
+        $transactionInformation = array(
+            'MerchantId' => str_replace(PHP_EOL, ' ', \Skye\Skyepayments\Helper\Data::getMerchantNumber()),
             'OperatorId' => str_replace(PHP_EOL, ' ', \Skye\Skyepayments\Helper\Data::getOperatorId()),
             'Password' => str_replace(PHP_EOL, ' ', \Skye\Skyepayments\Helper\Data::getOperatorPassword()),
-            'EncPassword' => '',            
+            'EncPassword' => '',
             'Offer' => str_replace(PHP_EOL, ' ',$skyeTermCode),
             'CreditProduct'=> str_replace(PHP_EOL, ' ', \Skye\Skyepayments\Helper\Data::getCreditProduct()),
             'NoApps' => '',
-            'OrderNumber' => str_replace(PHP_EOL, ' ', $orderId),            
+            'OrderNumber' => str_replace(PHP_EOL, ' ', $orderId),
             'ApplicationId' => '',
             'Description' => '',
-            'Amount' => str_replace(PHP_EOL, ' ', $order->getTotalDue()),            
+            'Amount' => str_replace(PHP_EOL, ' ', $order->getTotalDue()),
             'ExistingCustomer' => '0',
-            'Title' => '', 
-            'FirstName' => str_replace(PHP_EOL, ' ', $order->getCustomerFirstname()),             
-            'MiddleName' => '', 
-            'Surname' => str_replace(PHP_EOL, ' ', $order->getCustomerLastname()),            
-            'Gender' => '', 
-            'BillingAddress' => $billingAddressGroup, 
+            'Title' => '',
+            'FirstName' => str_replace(PHP_EOL, ' ', $order->getCustomerFirstname()),
+            'MiddleName' => '',
+            'Surname' => str_replace(PHP_EOL, ' ', $order->getCustomerLastname()),
+            'Gender' => '',
+            'BillingAddress' => $billingAddressGroup,
             'DeliveryAddress' => $shippingAddressGroup,
             'WorkPhoneArea' => '',
             'WorkPhoneNumber' => '',
             'HomePhoneArea' => '',
-            'HomePhoneNumber' => '',            
-            'MobilePhoneNumber' => preg_replace('/\D+/', '', $billingAddress->getData('telephone')),            
+            'HomePhoneNumber' => '',
+            'MobilePhoneNumber' => preg_replace('/\D+/', '', $billingAddress->getData('telephone')),
             'EmailAddress' => str_replace(PHP_EOL, ' ', $order->getData('customer_email')),
             'Status' => '',
             'ReturnApprovedUrl' => str_replace(PHP_EOL, ' ', \Skye\Skyepayments\Helper\Data::getCompleteUrl($orderId)),
@@ -499,59 +499,59 @@ class  extends \Magento\Framework\App\Action\Action
             'CreditLimit' => ''
         );
 
-        $params = array(                
-            'TransactionInformation' => $transactionInformation, 
-            'SecretKey' => \Skye\Skyepayments\Helper\Data::getApiKey()     
-        );        
+        $params = array(
+            'TransactionInformation' => $transactionInformation,
+            'SecretKey' => \Skye\Skyepayments\Helper\Data::getApiKey()
+        );
 
         return $params;
 
     }
 
     private function formatAddress($addressParts, $address)
-    {        
-        $addressStreet0 = explode(' ', $addressParts[0]);  
+    {
+        $addressStreet0 = explode(' ', $addressParts[0]);
         $addressStreetCount = count($addressStreet0);
 
             foreach ($addressStreet0 as $addressValue0) {
-                
-                if (is_numeric($addressValue0)) 
-                { 
+
+                if (is_numeric($addressValue0))
+                {
                     $addressNoStr = $addressValue0;
-                }                
+                }
             }
 
             if ($addressStreetCount == 3)
-            {                
-             $addressNameStr = $addressStreet0[$addressStreetCount - 2];                                       
+            {
+             $addressNameStr = $addressStreet0[$addressStreetCount - 2];
              $addressTypeStr = $addressStreet0[$addressStreetCount -1];
 
-            }                         
-        
+            }
+
         if (count($addressParts) > 1)
         {
-            $addressStreet1 = explode(' ', $addressParts[1]);            
+            $addressStreet1 = explode(' ', $addressParts[1]);
             $addressStreetCount = count($addressStreet1);
 
             foreach ($addressStreet1 as $addressValue1) {
-                
-                if (is_numeric($addressValue1)) 
-                { 
+
+                if (is_numeric($addressValue1))
+                {
                     $addressNoStr = $addressValue1;
                 } else {
                     $addressNameStr = $addressValue1;
                 }
-            } 
+            }
             if ($addressStreetCount == 1)
             {
                 $addressTypeStr = $addressStreet1[0];
             } else {
-                $addressTypeStr = $addressStreet1[$addressStreetCount -1]; 
+                $addressTypeStr = $addressStreet1[$addressStreetCount -1];
             }
 
         }
         $addressTypeStrFmt = strtolower($addressTypeStr);
-        
+
         if ($address->getData('region') === 'Australia Capital Territory') {
             $state = 'ACT';
         } else if ($address->getData('region') === 'New South Wales') {
@@ -571,25 +571,25 @@ class  extends \Magento\Framework\App\Action\Action
         } else {
             $state = '';
         }
-        
-        $formattedAddress = array(           
-            'AddressType' => 'Residential', 
-            'UnitNumber' => '', 
+
+        $formattedAddress = array(
+            'AddressType' => 'Residential',
+            'UnitNumber' => '',
             'StreetNumber' => $addressNoStr,
             'StreetName' => $addressNameStr,
             'StreetType' => ucfirst($addressTypeStrFmt),
-            'Suburb' => str_replace(PHP_EOL, ' ', $address->getData('city')), 
+            'Suburb' => str_replace(PHP_EOL, ' ', $address->getData('city')),
             'City' => str_replace(PHP_EOL, ' ', $address->getData('city')),
             'State' => str_replace(PHP_EOL, ' ', $state),
-            'Postcode' => str_replace(PHP_EOL, ' ', $address->getData('postcode')), 
+            'Postcode' => str_replace(PHP_EOL, ' ', $address->getData('postcode')),
             'DPID' => ''
-        );   
-        
+        );
+
         return $formattedAddress;
     }
-        
+
         //convert state full name as abbrivation
-        
+
     /**
      * Calls the SOAP service
      * @param $checkoutUrl
@@ -598,20 +598,20 @@ class  extends \Magento\Framework\App\Action\Action
      */
     private function beginIplTransaction($checkoutUrl, $params)
     {
-        $transactionId = '';        
+        $transactionId = '';
         $soapclient = new \SoapClient($checkoutUrl, ['trace' => true, 'exceptions' => true]);
-        try{        
-            $response = $soapclient->__soapCall('BeginIPLTransaction',[$params]);             
-            $transactionId = $response->BeginIPLTransactionResult;                                
-        }catch(Exception $ex){            
+        try{
+            $response = $soapclient->__soapCall('BeginIPLTransaction',[$params]);
+            $transactionId = $response->BeginIPLTransactionResult;
+        }catch(Exception $ex){
             $this->logger->log(\Monolog\Logger::ERROR, "Exception: response->".$transactionId.$ex->getMessage());
-            preg_match('/Validation(.+)|Error(.+)/', $ex->getMessage() , $arrMatches);            
+            preg_match('/Validation(.+)|Error(.+)/', $ex->getMessage() , $arrMatches);
             $this->logger->log(\Monolog\Logger::ERROR, "Exception: request->".$soapclient->__getLastRequest());
             $this->logger->log(\Monolog\Logger::ERROR, "Exception: response->".$soapclient->__getLastResponse());
-            //$this->_redirect('checkout/onepage/error', array('_secure'=> false));            
+            //$this->_redirect('checkout/onepage/error', array('_secure'=> false));
             $this->getCheckoutSession()->addError($this->__('Unable to start Skye Checkout: '.$soapclient->__getLastResponse()));
-            //return;            
-        }    
+            //return;
+        }
         return $transactionId;
     }
 
@@ -665,8 +665,8 @@ class  extends \Magento\Framework\App\Action\Action
     {
         echo
         "<html>
-            <body>            
-            <form id='form' action='$checkoutUrl' method='get'>";        
+            <body>
+            <form id='form' action='$checkoutUrl' method='get'>";
             echo "<input type='hidden' id='seller' name='seller' value='$merchantId'/>";
             echo "<input type='hidden' id='ifol' name='ifol' value='true'/>";
             echo "<input type='hidden' id='transactionId' name='transactionId' value='$transactionId'/>";
